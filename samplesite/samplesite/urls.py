@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home),
     path('bboard/', include('bboard.urls')),
+    path('dokk/', include('dokk.urls')),
 ]
