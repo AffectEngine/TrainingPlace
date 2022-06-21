@@ -1,3 +1,4 @@
 from django.contrib import admin
+from bboard.models import FirstModel
 
-# Register your models here.
+admin.site.register(FirstModel)

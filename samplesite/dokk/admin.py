@@ -1,3 +1,4 @@
 from django.contrib import admin
+from dokk.models import SecondModel
 
-# Register your models here.
+admin.site.register(SecondModel)
