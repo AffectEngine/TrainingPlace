@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from models import FirstModel
+from bboard.models import FirstModel
 
 def home(request):
     return HttpResponse('<h1>Hello world</h1>')
