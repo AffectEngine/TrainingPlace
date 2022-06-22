@@ -4,6 +4,5 @@ from dokk.models import SecondModel
 
 
 def indek(request):
-    bekk = SecondModel.objects.order_by('-published')
-    return render(request, 'dokk/indek.html', {'bekk':bekk})
+    bekk = SecondModel.objects.all()
 

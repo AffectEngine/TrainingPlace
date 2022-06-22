@@ -7,5 +7,4 @@ def home(request):
     return HttpResponse('<h1>Hello world</h1>')
 
 def inde(request):
-    bbs = FirstModel.objects.order_by('-published')
-    return render(request, 'bboard/index.html', {'bbs': bbs})
+    bbs = FirstModel.objects.all()
