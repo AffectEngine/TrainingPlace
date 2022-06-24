@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from bboard.models import FirstModel
 from django.views.generic.edit import CreateView
 from .forms import FirstModelForm
+from django.urls import reverse_lazy
 
 
 def home(request):
@@ -28,7 +29,7 @@ def by_rubric(request, rubric_id):
 class FirstModelCreateView(CreateView):
     template_name = 'bboard/create.html'
     form_class = FirstModelForm
-    success_url = '/bboard/'
+    success_url = reverse_lazy('inde')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
