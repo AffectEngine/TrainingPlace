@@ -1,4 +1,4 @@
-"""samplesite URL Configuration
+"""siteshabtwo URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.0/topics/http/urls/
@@ -15,10 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from bboard.views import home
+from firstapp.views import omeh
+
+
 
 urlpatterns = [
+    path('firstapp/', include('firstapp.urls')),
     path('admin/', admin.site.urls),
-    path('', home),
-    path('bboard/', include('bboard.urls')),
+    path('', omeh),
 ]
