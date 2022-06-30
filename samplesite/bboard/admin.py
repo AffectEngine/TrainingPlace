@@ -1,6 +1,6 @@
 from django.contrib import admin
-from bboard.models import FirstModel
-from bboard.models import Rubric
+from bboard.models import FirstModel, Rubric, Person
+
 
 
 class FirstModelAdmin(admin.ModelAdmin):
@@ -10,3 +10,4 @@ class FirstModelAdmin(admin.ModelAdmin):
 
 admin.site.register(FirstModel, FirstModelAdmin)
 admin.site.register(Rubric)
+admin.site.register(Person)

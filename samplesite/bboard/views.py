@@ -3,7 +3,7 @@ from .models import Rubric
 from django.http import HttpResponse
 from bboard.models import FirstModel
 from django.views.generic.edit import CreateView
-from .forms import FirstModelForm
+from .forms import FirstModelForm, PersonForm
 from django.urls import reverse_lazy
 
 
@@ -35,3 +35,12 @@ class FirstModelCreateView(CreateView):
         context = super().get_context_data(**kwargs)
         context['rubrics'] = Rubric.objects.all()
         return context
+
+
+class PersonView(CreateView):
+    template_name = 'bboard/people.html'
+    form_class = PersonForm
+    success_url = '/bboard/'
+
+    def get_absolute_url(self):
+        return f'/person/{self.pk}/'

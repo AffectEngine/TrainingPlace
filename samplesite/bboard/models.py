@@ -26,3 +26,20 @@ class Rubric(models.Model):
         ordering = ['name']
 
 
+class Person(models.Model):
+    choices = (
+            ('M', 'Male'),
+            ('F', 'Female')
+        )
+    name = models.CharField(max_length=10)
+    sex = models.CharField(max_length=1, choices=choices)
+    age = models.IntegerField()
+
+    def get_absolute_url(self):
+        return f'/person/{self.name}/'
+
+    class Meta:
+        verbose_name = 'Человек'
+        verbose_name_plural = 'Люди'
+        ordering = ['name']
+
