@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class ModelForWork(models.Model):
@@ -15,6 +16,16 @@ class ModelForWork(models.Model):
         verbose_name = 'Услуга'
         verbose_name_plural = 'Услуги'
         ordering = ['-title']
+        unique_together = (
+            ('title', 'content', 'published')
+            ('title', 'price', 'email')
+        )
+        indexes = [
+            models.Index(fields=['-published', 'title'],
+                         name='%(app_label)s_%(class)_main'),
+            models.Index(fields=['title', ' price', 'content']),
+        ]
+
 
 
 class TupleModel(models.Model):
@@ -69,3 +80,18 @@ class ScrollVarious(models.Model):
         __empty__ = 'Выберите тип публикуемого объявления'
 
     scrollvar = models.FloatField(choices=ScrollPagesVar.choices)
+
+
+class AdvUser(models.Model):
+    is_activated = models.BooleanField(default=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+
+class Machine(models.Model):
+    name = models.CharField(max_length=30)
+
+
+class SparePart(model.Model):
+    name = models.CharField(max_length=30)
+    spares = models.ManyToManyField(SparePart)
+
