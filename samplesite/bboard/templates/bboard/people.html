@@ -6,8 +6,7 @@
     </head>
     <body>
         {% for el in objects %}
-        <a href="{{ el.get_absolute_url }}"></a>
+        <a href="{{ el.get_absolute_url }}">Нажать</a>
         {% endfor %}
-    <a href="{% url 'ppl' %}">Ссылка</a>
     </body>
 </html>

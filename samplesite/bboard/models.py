@@ -1,4 +1,5 @@
 from django.db import models
+from django.shortcuts import reverse
 
 
 class FirstModel(models.Model):
@@ -36,7 +37,7 @@ class Person(models.Model):
     age = models.IntegerField()
 
     def get_absolute_url(self):
-        return f'/person/{self.name}/'
+        return reverse('bboard:ppl', kwargs={'id': self.id, 'name': self.name})
 
     class Meta:
         verbose_name = 'Человек'
