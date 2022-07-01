@@ -14,6 +14,14 @@ class FirstModel(models.Model):
         verbose_name_plural = 'Объявления'
         ordering = ['-published']
 
+    def title_and_price(self):
+        if self.price:
+            return f"{self.title} {self.price}"
+        else:
+            return self.title
+
+    title_and_price.short_description = 'Название и цена'
+
 
 class Rubric(models.Model):
     name = models.CharField(max_length=20, db_index=True, verbose_name='Название')
