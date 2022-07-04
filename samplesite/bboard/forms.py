@@ -14,4 +14,4 @@ class FirstModelForm(ModelForm):
 class PersonForm(ModelForm):
     class Meta:
         model = Person
-        fields = ('name', 'sex', 'age')
+        fields = ('name', 'sex', 'age', 'mail', 'git')
