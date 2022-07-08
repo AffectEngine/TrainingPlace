@@ -2,6 +2,7 @@ from django.db import models
 from django.shortcuts import reverse
 from django.core import validators
 from django.core.exceptions import ValidationError
+
 # from datetime import date
 
 
@@ -10,12 +11,14 @@ class FirstModel(models.Model):
     content = models.TextField(null=True, blank=True, verbose_name='Описание')
     price = models.FloatField(null=True, blank=True, verbose_name='Цена')
     published = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Опубликовано')
-    rubric = models.ForeignKey('Rubric', null=True, on_delete=models.PROTECT, verbose_name='Рубрика')
+    rubric = models.ForeignKey('Rubric', null=True, on_delete=models.PROTECT, verbose_name='Рубрика',
+                               related_query_name='FMfilter')
 
     class Meta:
         verbose_name = 'Объявление'
         verbose_name_plural = 'Объявления'
         ordering = ['-published']
+        get_latest_by = 'published'
 
     def title_and_price(self):
         if self.price:
@@ -50,15 +53,22 @@ def get_min_age():
 
 class Person(models.Model):
     choices = (
-            ('M', 'Male'),
-            ('F', 'Female')
-        )
-    name = models.CharField(max_length=10, verbose_name='Имя', validators=[validators.MinLengthValidator(get_min_length)])
+        ('M', 'Male'),
+        ('F', 'Female')
+    )
+    name = models.CharField(max_length=15, verbose_name='Имя',
+                            validators=[validators.MinLengthValidator(get_min_length)])
+    second_name = models.CharField(max_length=15, verbose_name='Второе имя', default='', validators=[validators.MinLengthValidator(get_min_length)])
+    skin_color = models.CharField(max_length=15, verbose_name='Цвет кожи', default='', validators=[validators.MinLengthValidator(get_min_length)])
     sex = models.CharField(max_length=1, verbose_name='Пол', choices=choices)
     birth_date = models.DateField(verbose_name='Дата рождения', default='2022-07-02')
-    age = models.IntegerField(verbose_name='Возраст', validators=[validators.MinValueValidator(get_min_age, message='Регистрация доступна пользователям с 18 лет')])
-    mail = models.EmailField(max_length=30, verbose_name='Почта', default=' ', validators=[validators.EmailValidator(message='Некорректный ввод')])
-    git = models.URLField(max_length=90, verbose_name='Ссылка на Git', default=' ', validators=[validators.URLValidator(schemes=None, regex='github.com', message='Введите корректный Git адрес', code='invalid')])
+    age = models.IntegerField(verbose_name='Возраст', validators=[
+        validators.MinValueValidator(get_min_age, message='Регистрация доступна пользователям с 18 лет')])
+    mail = models.EmailField(max_length=30, verbose_name='Почта', default=' ',
+                             validators=[validators.EmailValidator(message='Некорректный ввод')])
+    git = models.URLField(max_length=90, verbose_name='Ссылка на Git', default=' ', validators=[
+        validators.URLValidator(schemes=None, regex='github.com', message='Введите корректный Git адрес',
+                                code='invalid')])
 
     def get_absolute_url(self):
         return reverse('bboard:ppl', kwargs={'id': self.id, 'name': self.name})
@@ -81,16 +91,7 @@ class Person(models.Model):
     #     today = date.today()
     #     return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
-
     class Meta:
         verbose_name = 'Человек'
         verbose_name_plural = 'Люди'
         ordering = ['name']
-
-    # def clean(self):
-    #     errors = {}
-    #     try:
-    #         if self.age < 0:
-    #             errors['age'] = ValidationError('Возраст не может быть отрицательным')
-    #     except TypeError:
-    #         print('Пустая строка ввода возраста')
