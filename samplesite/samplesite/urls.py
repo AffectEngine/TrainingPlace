@@ -15,10 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from bboard.views import home
+from bboard.views import home, create_and_save
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home),
     path('bboard/', include('bboard.urls')),
+    path('add/', create_and_save, name='create_and_save'),
 ]
