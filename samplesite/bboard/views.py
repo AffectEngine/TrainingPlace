@@ -1,19 +1,16 @@
 from django.shortcuts import render
-from .models import Rubric
-from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
-from bboard.models import FirstModel
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest, FileResponse
+from bboard.models import FirstModel, Rubric
 from django.views.generic.edit import CreateView
+from django.views.generic.base import TemplateView
 from .forms import FirstModelForm, PersonForm
 from django.urls import reverse_lazy, reverse
 from django.template.loader import get_template
 
 
 def home(request):
-    new_home = HttpResponse('Здесь будет', content_type='text/plain; charset=utf-8')
-    new_home.write(' главная')
-    new_home.writelines((' страница', ' сайта'))
-    new_home['keywords'] = 'Python, Django'
-    return new_home
+    home_image = open('bboard/images_site/cat_kambare.png', 'rb')
+    return FileResponse(home_image)
 
 
 def inde(request):
@@ -50,6 +47,7 @@ def create_and_save(request):
 
 class FirstModelCreateView(CreateView):
     template_name = 'bboard/create.html'
+    model = FirstModel
     form_class = FirstModelForm
     success_url = reverse_lazy('bboard:inde')
 
@@ -66,3 +64,14 @@ class PersonView(CreateView):
 
     def get_absolute_url(self):
         return f'/person/{self.pk}/'
+
+
+class FirstModelByRubricView(TemplateView):
+    template_name = 'bboard/by_rubric.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['bbs'] = FirstModel.objects.filter(rubric=context['rubric_id'])
+        context['rubrics'] = Rubric.objects.all()
+        context['current_rubric'] = Rubric.objects.get(pk=context['rubric_id'])
+        return context

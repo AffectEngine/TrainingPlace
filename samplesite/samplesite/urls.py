@@ -22,4 +22,5 @@ urlpatterns = [
     path('', home),
     path('bboard/', include('bboard.urls')),
     path('add/', create_and_save, name='create_and_save'),
+    path('ticket/', include('ticket.urls')),
 ]
