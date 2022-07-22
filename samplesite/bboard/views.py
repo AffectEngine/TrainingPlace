@@ -20,13 +20,13 @@ def inde(request):
     template = get_template('bboard/index.html')
     return HttpResponse(template.render(context=context, request=request))
 
-
-def by_rubric(request, rubric_id):
-    bbs = FirstModel.objects.filter(rubric=rubric_id)
-    rubrics = Rubric.objects.all()
-    current_rubric = Rubric.objects.get(pk=rubric_id)
-    context = {'bbs': bbs, 'rubrics': rubrics, 'current_rubric': current_rubric}
-    return render(request, 'bboard/by_rubric.html', context)
+# ОБЫЧНЫЙ КОНТРОЛЛЕР ВЫВОДА РУБРИК ПО ИХ КЛЮЧУ (ЗАМЕНЕНО к-к FirstModelByRubricView)
+# def by_rubric(request, rubric_id):
+#     bbs = FirstModel.objects.filter(rubric=rubric_id)
+#     rubrics = Rubric.objects.all()
+#     current_rubric = Rubric.objects.get(pk=rubric_id)
+#     context = {'bbs': bbs, 'rubrics': rubrics, 'current_rubric': current_rubric}
+#     return render(request, 'bboard/by_rubric.html', context)
 
 
 def create_and_save(request):
@@ -67,6 +67,7 @@ class PersonView(CreateView):
 
 
 class FirstModelByRubricView(TemplateView):
+
     template_name = 'bboard/by_rubric.html'
 
     def get_context_data(self, **kwargs):
