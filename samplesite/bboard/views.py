@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpRequest, FileRes
 from bboard.models import FirstModel, Rubric
 from django.views.generic.edit import CreateView
 from django.views.generic.base import TemplateView
+from django.views.generic.detail import DetailView
 from .forms import FirstModelForm, PersonForm
 from django.urls import reverse_lazy, reverse
 from django.template.loader import get_template
@@ -21,6 +22,7 @@ def inde(request):
     return HttpResponse(template.render(context=context, request=request))
 
 # ОБЫЧНЫЙ КОНТРОЛЛЕР ВЫВОДА РУБРИК ПО ИХ КЛЮЧУ (ЗАМЕНЕНО к-к FirstModelByRubricView)
+
 # def by_rubric(request, rubric_id):
 #     bbs = FirstModel.objects.filter(rubric=rubric_id)
 #     rubrics = Rubric.objects.all()
@@ -71,8 +73,16 @@ class FirstModelByRubricView(TemplateView):
     template_name = 'bboard/by_rubric.html'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = super(FirstModelByRubricView, self).get_context_data(**kwargs)
         context['bbs'] = FirstModel.objects.filter(rubric=context['rubric_id'])
         context['rubrics'] = Rubric.objects.all()
         context['current_rubric'] = Rubric.objects.get(pk=context['rubric_id'])
+        return context
+
+class FirstModelDetailView(DetailView):
+    model = FirstModel
+
+    def get_context_data(self, **kwargs):
+        context = super(FirstModelDetailView, self).get_context_data(**kwargs)
+        context['rubrics'] = Rubric.objects.all()
         return context
