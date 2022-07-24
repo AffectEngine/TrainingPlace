@@ -1,7 +1,7 @@
 {% extends "layout/basic.html" %}
 
 {% block content %}
-{%  for firstmodelcontent in bbs %}
+{%  for firstmodelcontent in firstmodelsource %}
 <div>
     <h2>{{ firstmodelcontent.title }}</h2>
     <p>{{ firstmodelcontent.content }}</p>
