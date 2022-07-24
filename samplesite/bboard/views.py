@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest, FileResponse
 from bboard.models import FirstModel, Rubric
 from django.views.generic.edit import CreateView
-from django.views.generic.base import TemplateView
+#from django.views.generic.base import TemplateView   Попытка замены TemplateView на ListView
+from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from .forms import FirstModelForm, PersonForm
 from django.urls import reverse_lazy, reverse
@@ -15,19 +16,19 @@ def home(request):
 
 
 def inde(request):
-    bbs = FirstModel.objects.all()
+    firstmodelsource = FirstModel.objects.all()
     rubrics = Rubric.objects.all()
-    context = {'bbs': bbs, 'rubrics': rubrics}
+    context = {'firstmodelsource': firstmodelsource, 'rubrics': rubrics}
     template = get_template('bboard/index.html')
     return HttpResponse(template.render(context=context, request=request))
 
 # ОБЫЧНЫЙ КОНТРОЛЛЕР ВЫВОДА РУБРИК ПО ИХ КЛЮЧУ (ЗАМЕНЕНО к-к FirstModelByRubricView)
 
 # def by_rubric(request, rubric_id):
-#     bbs = FirstModel.objects.filter(rubric=rubric_id)
+#     firstmodelsource = FirstModel.objects.filter(rubric=rubric_id)
 #     rubrics = Rubric.objects.all()
 #     current_rubric = Rubric.objects.get(pk=rubric_id)
-#     context = {'bbs': bbs, 'rubrics': rubrics, 'current_rubric': current_rubric}
+#     context = {'firstmodelsource': firstmodelsource, 'rubrics': rubrics, 'current_rubric': current_rubric}
 #     return render(request, 'bboard/by_rubric.html', context)
 
 
@@ -67,17 +68,34 @@ class PersonView(CreateView):
     def get_absolute_url(self):
         return f'/person/{self.pk}/'
 
+#BAD PRACTICE массовый комментарий с попыткой замены TemplateView на ListView для пробы пера
 
-class FirstModelByRubricView(TemplateView):
+# class FirstModelByRubricView(TemplateView):
+#
+#     template_name = 'bboard/by_rubric.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(FirstModelByRubricView, self).get_context_data(**kwargs)
+#         context['firstmodelsource'] = FirstModel.objects.filter(rubric=context['rubric_id'])
+#         context['rubrics'] = Rubric.objects.all()
+#         context['current_rubric'] = Rubric.objects.get(pk=context['rubric_id'])
+#         return context
 
+
+class FirstModelByRubricViewL(ListView):
     template_name = 'bboard/by_rubric.html'
+    context_object_name = 'firstmodelsource'
 
-    def get_context_data(self, **kwargs):
-        context = super(FirstModelByRubricView, self).get_context_data(**kwargs)
-        context['bbs'] = FirstModel.objects.filter(rubric=context['rubric_id'])
+    def get_queryset(self):
+        return FirstModel.objects.filter(rubric=self.kwargs['rubric_id'])
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(FirstModelByRubricViewL, self).get_context_data(**kwargs)
         context['rubrics'] = Rubric.objects.all()
-        context['current_rubric'] = Rubric.objects.get(pk=context['rubric_id'])
+        context['current_rubric'] = Rubric.objects.get(pk=self.kwargs['rubric_id'])
+
         return context
+
 
 class FirstModelDetailView(DetailView):
     model = FirstModel
