@@ -1,12 +1,13 @@
 {% extends "layout/basic.html" %}
 
 {% block content %}
-{%  for bb in bbs %}
+{%  for firstmodelcontent in bbs %}
 <div>
-    <h2>{{ bb.title }}</h2>
-    <p>{{ bb.content }}</p>
-    <p><a href="{% url 'bboard:by_rubric' bb.rubric.pk %}">{{ bb.rubric.name }}</a></p>
-    <p>{{ bb.published|date:"d.m.Y H:i:s" }}</p>
+    <h2>{{ firstmodelcontent.title }}</h2>
+    <p>{{ firstmodelcontent.content }}</p>
+    <p><a href="{% url 'bboard:by_rubric' firstmodelcontent.rubric.pk %}">{{ firstmodelcontent.rubric.name }}</a></p>
+    <p>{{ firstmodelcontent.published|date:"d.m.Y H:i:s" }}</p>
+    <h2><a href="{% url 'bboard:detail' pk=firstmodelcontent.pk %}">{{ firstmodelcontent.title }}</a></h2>
 </div>
 {% endfor %}
 {% endblock %}
