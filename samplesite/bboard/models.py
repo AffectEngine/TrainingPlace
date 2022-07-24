@@ -20,13 +20,15 @@ class FirstModel(models.Model):
         ordering = ['-published']
         get_latest_by = 'published'
 
-    def title_and_price(self):
-        if self.price:
-            return f"{self.title} {self.price}"
-        else:
-            return self.title
+#Плохая практика комментария блока кода. метод можно использовать для отображения названия-цены одновременно
 
-    title_and_price.short_description = 'Название и цена'
+    # def title_and_price(self):
+    #     if self.price:
+    #         return f"{self.title} {self.price}"
+    #     else:
+    #         return self.title
+    #
+    # title_and_price.short_description = 'Название и цена'
 
 
 class Rubric(models.Model):
