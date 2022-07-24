@@ -5,7 +5,7 @@
 {% block content %}
 <h2>Рубрика: {{ current_rubric.name }}</h2>
 
-{% for firstmodelcontent in bbs %}
+{% for firstmodelcontent in firstmodelsource %}
 <div>
 <!--    <h2>{{ firstmodelcontent.title }}</h2> МОЖНО УБРАТЬ КОММЕНТАРИЙ И ВЫВЕСТИ TITLE-->
     <h2><a href="{% url 'bboard:detail' pk=firstmodelcontent.pk %}">{{ firstmodelcontent.title }}</a></h2>
