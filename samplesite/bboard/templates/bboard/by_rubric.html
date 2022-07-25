@@ -9,6 +9,7 @@
 <div>
 <!--    <h2>{{ firstmodelcontent.title }}</h2> МОЖНО УБРАТЬ КОММЕНТАРИЙ И ВЫВЕСТИ TITLE-->
     <h2><a href="{% url 'bboard:detail' pk=firstmodelcontent.pk %}">{{ firstmodelcontent.title }}</a></h2>
+    <h2><a href="{% url 'bboard:edit' pk=firstmodelcontent.pk %}">Исправить</a></h2>
     <p>{{ firstmodelcontent.content }}</p>
     <p>{{ firstmodelcontent.published|date:"d.m.Y H:i:s" }}</p>
 
