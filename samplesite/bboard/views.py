@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest, FileResponse
 from bboard.models import FirstModel, Rubric
-from django.views.generic.edit import CreateView
-#from django.views.generic.base import TemplateView   Попытка замены TemplateView на ListView
+from django.views.generic.edit import CreateView, FormView, UpdateView
+# from django.views.generic.base import TemplateView   Попытка замены TemplateView на ListView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from .forms import FirstModelForm, PersonForm
@@ -22,6 +22,7 @@ def inde(request):
     template = get_template('bboard/index.html')
     return HttpResponse(template.render(context=context, request=request))
 
+
 # ОБЫЧНЫЙ КОНТРОЛЛЕР ВЫВОДА РУБРИК ПО ИХ КЛЮЧУ (ЗАМЕНЕНО к-к FirstModelByRubricView)
 
 # def by_rubric(request, rubric_id):
@@ -32,32 +33,69 @@ def inde(request):
 #     return render(request, 'bboard/by_rubric.html', context)
 
 
-def create_and_save(request):
-    if request.method == 'POST':
-        cre_a_sav_form = FirstModelForm(request.POST)
-        if cre_a_sav_form.is_valid():
-            cre_a_sav_form.save()
-            return HttpResponseRedirect(
-                reverse('bboard:by_rubric', kwargs={'rubric_id': cre_a_sav_form.cleaned_data['rubric'].pk}))
-        else:
-            context = {'form': cre_a_sav_form}
-            return render(request, 'bboard/create.html', context)
-    else:
-        cre_a_sav_form = FirstModelForm()
-        context = {'form': cre_a_sav_form}
-        return render(request, 'bboard/create.html', context)
+# ПЛОХАЯ ПРАКТИКА МАССОВОГО КОММЕНТАРИЯ, замена обычной формы создания Нового Объявления на FormView к-к
+
+# def create_and_save(request):
+#     if request.method == 'POST':
+#         cre_a_sav_form = FirstModelForm(request.POST)
+#         if cre_a_sav_form.is_valid():
+#             cre_a_sav_form.save()
+#             return HttpResponseRedirect(
+#                 reverse('bboard:by_rubric', kwargs={'rubric_id': cre_a_sav_form.cleaned_data['rubric'].pk}))
+#         else:
+#             context = {'form': cre_a_sav_form}
+#             return render(request, 'bboard/create.html', context)
+#     else:
+#         cre_a_sav_form = FirstModelForm()
+#         context = {'form': cre_a_sav_form}
+#         return render(request, 'bboard/create.html', context)
+
+# ПЛОХАЯ ПРАКТИКА МАССОВОГО КОММЕНТАРИЯ, замена обычной формы создания Нового Объявления на FormView к-к
+
+# class FirstModelCreateView(CreateView):
+#     template_name = 'bboard/create.html'
+#     model = FirstModel
+#     form_class = FirstModelForm
+#     success_url = reverse_lazy('bboard:inde')
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['rubrics'] = Rubric.objects.all()
+#         return context
 
 
-class FirstModelCreateView(CreateView):
-    template_name = 'bboard/create.html'
+class FirstModelEditView(UpdateView):
+    template_name = 'bboard/firstmodel_form.html'
     model = FirstModel
     form_class = FirstModelForm
-    success_url = reverse_lazy('bboard:inde')
+    success_url = '/'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, *args, **kwargs):
+        context = super(FirstModelEditView, self).get_context_data(*args, **kwargs)
         context['rubrics'] = Rubric.objects.all()
         return context
+
+
+class FirstModelAddView(FormView):
+    template_name = 'bboard/create.html'
+    form_class = FirstModelForm
+    initial = {'price': 0.0}
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(FirstModelAddView, self).get_context_data(*args, **kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        return context
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        self.object = super(FirstModelAddView, self).get_form(form_class)
+        return self.object
+
+    def get_success_url(self):
+        return reverse('bboard:by_rubric', kwargs={'rubric_id': self.object.cleaned_data['rubric'].pk})
 
 
 class PersonView(CreateView):
@@ -68,7 +106,8 @@ class PersonView(CreateView):
     def get_absolute_url(self):
         return f'/person/{self.pk}/'
 
-#BAD PRACTICE массовый комментарий с попыткой замены TemplateView на ListView для пробы пера
+
+# BAD PRACTICE массовый комментарий с попыткой замены TemplateView на ListView для пробы пера
 
 # class FirstModelByRubricView(TemplateView):
 #
