@@ -180,6 +180,7 @@ class FirstModelArchiveView(YearArchiveView):
     template_name = 'bboard/index.html'
     context_object_name = 'firstmodelsource'
     year = '2022'
+    year_format = '%y'
     allow_empty = True
     allow_future = True
 
@@ -187,3 +188,5 @@ class FirstModelArchiveView(YearArchiveView):
         context = super().get_context_data(*args, **kwargs)
         context['rubrics'] = Rubric.objects.all()
         return context
+
+
