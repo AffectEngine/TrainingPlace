@@ -3,12 +3,20 @@
 {% block content %}
 {%  for firstmodelcontent in firstmodelsource %}
 <div>
-    <h2>{{ firstmodelcontent.title }}</h2>
+    <h1><a href="{% url 'bboard:detail' pk=firstmodelcontent.pk %}">{{ firstmodelcontent.title }}</a></h1>
+    <h4><a href="{% url 'bboard:by_rubric' firstmodelcontent.rubric.pk %}">{{ firstmodelcontent.rubric.name }}</a></h4>
     <p>{{ firstmodelcontent.content }}</p>
-    <p><a href="{% url 'bboard:by_rubric' firstmodelcontent.rubric.pk %}">{{ firstmodelcontent.rubric.name }}</a></p>
     <p>{{ firstmodelcontent.published|date:"d.m.Y H:i:s" }}</p>
-    <h2><a href="{% url 'bboard:detail' pk=firstmodelcontent.pk %}">{{ firstmodelcontent.title }}</a></h2>
-    <h3><a href="{% url 'bboard:edit' pk=firstmodelcontent.pk %}">Исправить</a></h3>
+    <h6><a href="{% url 'bboard:edit' pk=firstmodelcontent.pk %}">Исправить</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a
+            href="{% url 'bboard:rub-delete' pk=firstmodelcontent.pk %}" class="btn btn-danger">Удалить</a></h6>
 </div>
 {% endfor %}
+<div>
+    <h1>Все объявления за {{ year|date:"Y" }}</h1>
+    {% for firstmodelcontent in firstmodelsource %}
+        <p>
+            {{ firstmodelcontent.title }} - {{ firstmodelcontent.published|date:"F j, Y" }}
+        </p>
+    {% endfor %}
+</div>
 {% endblock %}
