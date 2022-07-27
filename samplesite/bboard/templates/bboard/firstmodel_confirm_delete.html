@@ -2,13 +2,14 @@
 
 {% block title %}Удаление объявления{% endblock %}
 {% block content %}
-<h2>Удаление объявления</h2>
-<p>Рубрика: {{firstmodel.rubric.name}}</p>
-<p>Товар: {{ firstmodel.title }}</p>
-<p>{{ firstmosel.content }}</p>
-<p>Цена: {{ firstmodel.price }}</p>
-<form method="post">
-    {% csrf_token %}
-    <input type="submit" value="Удалить">
-</form>
+    <div class="features">
+        <h1>Удаление объявления</h1>
+        <form action="{% url 'bboard:rub-delete' firstmodel.id %}" method='post'>
+            {% csrf_token %}
+            <p>Рубрика: {{ firstmodel.rubric.name }}</p>
+            <p>Товар: {{ firstmodel.title }}</p>
+            <p>Цена: {{ fristmodel.price }}</p>
+            <button type='submit' class='btn btn-light'>Удалить</button>
+        </form>
+    </div>
 {% endblock %}
