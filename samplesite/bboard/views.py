@@ -1,13 +1,16 @@
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect, HttpRequest, FileResponse
 from bboard.models import FirstModel, Rubric
-from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
+from .forms import FirstModelForm, PersonForm
+
+from django.template.loader import get_template
+from django.shortcuts import render
+from django.urls import reverse_lazy, reverse
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest, FileResponse
+
 # from django.views.generic.base import TemplateView   Попытка замены TemplateView на ListView
+from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from .forms import FirstModelForm, PersonForm
-from django.urls import reverse_lazy, reverse
-from django.template.loader import get_template
+from django.views.generic.dates import YearArchiveView, ArchiveIndexView
 
 
 def home(request):
@@ -140,7 +143,7 @@ class FirstModelByRubricViewL(ListView):
     def get_queryset(self):
         return FirstModel.objects.filter(rubric=self.kwargs['rubric_id'])
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, *args, object_list=None, **kwargs):
         context = super(FirstModelByRubricViewL, self).get_context_data(**kwargs)
         context['rubrics'] = Rubric.objects.all()
         context['current_rubric'] = Rubric.objects.get(pk=self.kwargs['rubric_id'])
@@ -153,5 +156,34 @@ class FirstModelDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(FirstModelDetailView, self).get_context_data(**kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        return context
+
+
+class FirstModelIndexView(ArchiveIndexView):
+    model = FirstModel
+    date_field = 'published'
+    date_list_period = 'year'
+    template_name = 'bboard/index.html'
+    context_object_name = 'firstmodelsource'
+    allow_empty = True
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        return context
+
+
+class FirstModelArchiveView(YearArchiveView):
+    queryset = Rubric.objects.all()
+    date_field = 'published'
+    template_name = 'bboard/index.html'
+    context_object_name = 'firstmodelsource'
+    year = '2022'
+    allow_empty = True
+    allow_future = True
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
         context['rubrics'] = Rubric.objects.all()
         return context
