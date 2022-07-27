@@ -3,16 +3,21 @@
 {% block title %}{{ current_rubric.name }}{% endblock %}
 
 {% block content %}
-<h2>Рубрика: {{ current_rubric.name }}</h2>
+<h1>Рубрика: {{ current_rubric.name }}</h1>
 
 {% for firstmodelcontent in firstmodelsource %}
 <div>
-<!--    <h2>{{ firstmodelcontent.title }}</h2> МОЖНО УБРАТЬ КОММЕНТАРИЙ И ВЫВЕСТИ TITLE-->
     <h2><a href="{% url 'bboard:detail' pk=firstmodelcontent.pk %}">{{ firstmodelcontent.title }}</a></h2>
-    <h3><a href="{% url 'bboard:edit' pk=firstmodelcontent.pk %}">Исправить</a></h3>
     <p>{{ firstmodelcontent.content }}</p>
     <p>{{ firstmodelcontent.published|date:"d.m.Y H:i:s" }}</p>
-    <a href="{% url 'bboard:rub-delete' pk=firstmodelcontent.pk %}" class="btn btn-danger">Удалить</a>
+    <h6><a href="{% url 'bboard:edit' pk=firstmodelcontent.pk %}">Исправить</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a
+            href="{% url 'bboard:rub-delete' pk=firstmodelcontent.pk %}" class="btn btn-danger">Удалить</a></h6>
 </div>
 {% endfor %}
+<h5>Дата добавления</h5>
+<ul type="circle">
+    {% for firstmodelcontent in firstmodelsource %}
+        <li>{{ firstmodelcontent.published }}: {{ firstmodelcontent.title }}</li>
+    {% endfor %}
+</ul>
 {% endblock %}
