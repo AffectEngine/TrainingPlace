@@ -12,7 +12,7 @@
 </div>
 {% endfor %}
 <div>
-    <h1>Все объявления за {{ year|date:"Y" }}</h1>
+    <h1>Все объявления за 2022</h1> <!-- НАЙТИ СПОСОБ ОТОБРАЖЕНИЯ АДАПТИВНОЙ ДАТЫ(ГОДА) {{ year|date:"Y" }} не работает-->
     {% for firstmodelcontent in firstmodelsource %}
         <p>
             {{ firstmodelcontent.title }} - {{ firstmodelcontent.published|date:"F j, Y" }}
