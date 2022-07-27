@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest, FileResponse
 from bboard.models import FirstModel, Rubric
-from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 # from django.views.generic.base import TemplateView   Попытка замены TemplateView на ListView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
@@ -72,6 +72,18 @@ class FirstModelEditView(UpdateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(FirstModelEditView, self).get_context_data(*args, **kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        return context
+
+
+class FirstModelDeleteView(DeleteView):
+    template_name = 'bboard/firstmodel_confirm_delete.html'
+    model = FirstModel
+    success_url = reverse_lazy('bboard:inde')
+    queryset = FirstModel.objects.all()
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(FirstModelDeleteView, self).get_context_data(*args, **kwargs)
         context['rubrics'] = Rubric.objects.all()
         return context
 
