@@ -14,6 +14,13 @@
             href="{% url 'bboard:rub-delete' pk=firstmodelcontent.pk %}" class="btn btn-danger">Удалить</a></h6>
 </div>
 {% endfor %}
+    {% with firstmodel_count=firstmodelsource.count %}
+        {% if firstmodel_count > 0 %}
+            <h4>Всего {{ firstmodel_count }} объявлений</h4>
+        {% else %}
+            <h4>Объявлений не найдено!</h4>
+        {% endif %}
+    {% endwith %}
 <h5>Дата добавления</h5>
 <ul type="circle">
     {% for firstmodelcontent in firstmodelsource %}
