@@ -7,10 +7,11 @@ from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest, FileResponse
 
 # from django.views.generic.base import TemplateView   Попытка замены TemplateView на ListView
+from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.views.generic.dates import YearArchiveView, ArchiveIndexView
+from django.views.generic.dates import YearArchiveView, ArchiveIndexView, DateDetailView
 
 
 def home(request):
@@ -160,6 +161,10 @@ class FirstModelDetailView(DetailView):
         return context
 
 
+class FirstModelRedirectView(RedirectView):
+    url = 'https://www.youtube.com/watch?v=nuKIatYN50U&ab_channel=JAG'
+
+
 class FirstModelIndexView(ArchiveIndexView):
     model = FirstModel
     date_field = 'published'
@@ -190,3 +195,12 @@ class FirstModelArchiveView(YearArchiveView):
         return context
 
 
+class FirstModelDetailDateView(DateDetailView):
+    model = FirstModel
+    date_field = 'published'
+    month_format = '%m'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(FirstModelDetailDateView, self).get_context_data(*args, **kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        return context
