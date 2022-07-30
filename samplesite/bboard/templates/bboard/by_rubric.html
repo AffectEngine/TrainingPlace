@@ -6,10 +6,10 @@
 <h1>Рубрика: {{ current_rubric.name }}</h1>
 
 {% for firstmodelcontent in firstmodelsource %}
-<div>
-    <h2><a href="{% url 'bboard:detail' pk=firstmodelcontent.pk %}">{{ firstmodelcontent.title }}</a></h2>
-    <p>{{ firstmodelcontent.content }}</p>
-    <p>{{ firstmodelcontent.published|date:"d.m.Y H:i:s" }}</p>
+<div class="{% cycle 'bb1' 'bb2' 'bb3' as currentclass %}">
+    <h1><a href="{% url 'bboard:detail' pk=firstmodelcontent.pk %}">{{ firstmodelcontent.title }}</a></h1>
+    <p class="currentclass">{{ firstmodelcontent.content }}</p>
+    <p class="currentclass">{{ firstmodelcontent.published|date:"d.m.Y H:i:s" }}</p>
     <h6><a href="{% url 'bboard:edit' pk=firstmodelcontent.pk %}">Исправить</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a
             href="{% url 'bboard:rub-delete' pk=firstmodelcontent.pk %}" class="btn btn-danger">Удалить</a></h6>
 </div>
@@ -17,7 +17,7 @@
 <h5>Дата добавления</h5>
 <ul type="circle">
     {% for firstmodelcontent in firstmodelsource %}
-        <li>{{ firstmodelcontent.published }}: {{ firstmodelcontent.title }}</li>
+    <li>{{ firstmodelcontent.published }}: {{ firstmodelcontent.title }}</li>
     {% endfor %}
 </ul>
 {% endblock %}
