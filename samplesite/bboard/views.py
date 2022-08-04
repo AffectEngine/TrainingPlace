@@ -1,10 +1,11 @@
-from bboard.models import FirstModel, Rubric
-from .forms import FirstModelForm, PersonForm
+from bboard.models import FirstModel, Rubric, Person
+from .forms import FirstModelForm, RegisterPersonForm, FirstModelFullForm
 
 from django.template.loader import get_template
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest, FileResponse
+from django.core.paginator import Paginator
 
 # from django.views.generic.base import TemplateView   Попытка замены TemplateView на ListView
 from django.views.generic.base import RedirectView
@@ -15,16 +16,29 @@ from django.views.generic.dates import YearArchiveView, ArchiveIndexView, DateDe
 
 
 def home(request):
-    home_image = open('bboard/images_site/cat_kambare.png', 'rb')
+    home_image = open('D:/pythonProject/samplesite/bboard/static/bboard/img/cat_kambare.png', 'rb')
     return FileResponse(home_image)
 
 
 def inde(request):
     firstmodelsource = FirstModel.objects.all()
     rubrics = Rubric.objects.all()
-    context = {'firstmodelsource': firstmodelsource, 'rubrics': rubrics}
-    template = get_template('bboard/index.html')
-    return HttpResponse(template.render(context=context, request=request))
+    paginator = Paginator(firstmodelsource, 3)
+    if 'page' in request.GET:
+        page_num = request.GET['page']
+    else:
+        page_num = 1
+    page = paginator.get_page(page_num)
+    context = {'rubrics': rubrics, 'page': page, 'firstmodelsource': page.object_list}
+    return render(request, 'bboard/index.html', context)
+
+
+# def inde(request):
+#     firstmodelsource = FirstModel.objects.all()
+#     rubrics = Rubric.objects.all()
+#     context = {'firstmodelsource': firstmodelsource, 'rubrics': rubrics}
+#     template = get_template('bboard/index.html')
+#     return HttpResponse(template.render(context=context, request=request))
 
 
 # ОБЫЧНЫЙ КОНТРОЛЛЕР ВЫВОДА РУБРИК ПО ИХ КЛЮЧУ (ЗАМЕНЕНО к-к FirstModelByRubricView)
@@ -94,8 +108,7 @@ class FirstModelDeleteView(DeleteView):
 
 class FirstModelAddView(FormView):
     template_name = 'bboard/create.html'
-    form_class = FirstModelForm
-    initial = {'price': 0.0}
+    form_class = FirstModelFullForm
 
     def get_context_data(self, *args, **kwargs):
         context = super(FirstModelAddView, self).get_context_data(*args, **kwargs)
@@ -114,13 +127,39 @@ class FirstModelAddView(FormView):
         return reverse('bboard:by_rubric', kwargs={'rubric_id': self.object.cleaned_data['rubric'].pk})
 
 
-class PersonView(CreateView):
+class PersonRegView(FormView):
     template_name = 'bboard/people.html'
-    form_class = PersonForm
-    success_url = '/bboard/'
+    form_class = RegisterPersonForm
 
-    def get_absolute_url(self):
-        return f'/person/{self.pk}/'
+    def get_context_data(self, *args, **kwargs):
+        context = super(PersonRegView, self).get_context_data(*args, **kwargs)
+        context['name'] = Person.objects.all()
+        return context
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        self.object = super(PersonRegView, self).get_form(form_class)
+        return self.object
+
+    def get_success_url(self):
+        return reverse('bboard:person_display')
+
+
+class PersonDisplayView(ListView):
+    template_name = 'bboard/person_display.html'
+    context_object_name = 'personmodelsource'
+    paginate_by = 3
+
+    def get_queryset(self):
+        return Person.objects.all()
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super(PersonDisplayView, self).get_context_data(**kwargs)
+
+        return context
 
 
 # BAD PRACTICE массовый комментарий с попыткой замены TemplateView на ListView для пробы пера
@@ -140,6 +179,7 @@ class PersonView(CreateView):
 class FirstModelByRubricViewL(ListView):
     template_name = 'bboard/by_rubric.html'
     context_object_name = 'firstmodelsource'
+
 
     def get_queryset(self):
         return FirstModel.objects.filter(rubric=self.kwargs['rubric_id'])
