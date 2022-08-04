@@ -1,25 +1,30 @@
-<!DOCTYPE html>
 {% load static %}
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Главная{% endblock %} :: Доска объявлений</title>
-        <link rel="stylesheet" type="text/css" href="{% static 'bboard_style/style.css' %}">
-    </head>
-    <body>
-        <header>
-            <h1>Объявления</h1>
-        </header>
-        <nav>
-            <a href="{% url 'bboard:inde' %}">Главная</a>
-            <a href="{% url 'bboard:add' %}">Добавить</a>
-            {% for rubric in rubrics %}
-            <a href="{% url 'bboard:by_rubric' rubric.pk %}">{{ rubric.name }}</a>
-            {% endfor %}
-        </nav>
-        <section>
-            {% block content %}
-            {% endblock %}
-        </section>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Главная{% endblock %} :: Доска объявлений</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'bboard/css/style.css' %}">
+</head>
+<body>
+<header>
+    <h1>Объявления</h1>
+</header>
+<nav>
+    <a href="{% url 'bboard:inde' %}">Главная</a>
+    <a href="{% url 'bboard:people' %}">Регистрация</a>
+    <a href="{% url 'bboard:add' %}">Добавить Объявление</a>
+    {% for rubric in rubrics %}
+    <a href="{% url 'bboard:by_rubric' rubric.pk %}">{{ rubric.name }}</a>
+    {% endfor %}
+    <a href="{% url 'bboard:person_display' %}">Список пользователей</a>
+</nav>
+<section>
+    {% block paginator_upper %}
+    {% endblock %}
+    {% block contentzero %}
+    {% endblock %}
+    {% block img_additional %} {% endblock %}
+</section>
+</body>
 </html>
