@@ -1,39 +1,61 @@
 {% extends "layout/basic.html" %}
 
-{% block content %}
+{% load static %}
+
+
+{% block contentzero %}
 {%  for firstmodelcontent in firstmodelsource %}
 <div>
     <p>№ {{ forloop.counter }}</p>
     <h1><a href="{% url 'bboard:detail' pk=firstmodelcontent.pk %}">{{ firstmodelcontent.title }}</a></h1>
-    <h4><a href="{% url 'bboard:by_rubric' firstmodelcontent.rubric.pk %}">{{ firstmodelcontent.rubric.name }}</a></h4>
+    {% filter upper %}
+    <h5><a href="{% url 'bboard:by_rubric' firstmodelcontent.rubric.pk %}">{{ firstmodelcontent.rubric.name }}</a></h5>
+    {% endfilter %}
     <p>{{ firstmodelcontent.content }}</p>
     <p>{{ firstmodelcontent.published|date:"d.m.Y H:i:s" }}</p>
+    <p>С момента публикации {{ firstmodelcontent.published|timesince }}</p>
     <h6><a href="{% url 'bboard:edit' pk=firstmodelcontent.pk %}">Исправить</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a
             href="{% url 'bboard:rub-delete' pk=firstmodelcontent.pk %}" class="btn btn-danger">Удалить</a></h6>
 </div>
 <hr/>
 {% endfor %}
-
+{% block paginator_upper %}
+<br>
+<div>
+    {% if page.has_previous %}
+    <a href="?page={{ page.previous_page_number }}">&lt;</a>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    {% endif %}
+    Страница {{ page.number }} из {{ page.paginator.num_pages }}
+    {% if page.has_next %}
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="?page={{ page.next_page_number }}">&gt;</a>
+    {% endif %}
+</div>
+{% endblock %}
+<br><br><br><br><br>
 
 <div>
     <h1>Объявления за {% now "Y" %}</h1>
     {% with firstmodel_count=firstmodelsource.count %}
-        {% if firstmodel_count > 0 %}
-            <h4>Всего {{ firstmodel_count }} объявлений</h4>
-        {% else %}
-            <h4>Объявлений не найдено!</h4>
-        {% endif %}
+    {% if firstmodel_count > 0 %}
+    <h4>Всего {{ firstmodel_count }} объявлений</h4>
+    {% else %}
+    <h4>Объявлений не найдено!</h4>
+    {% endif %}
     {% endwith %}
     <!-- НАСТРОИТЬ СОВПАДЕНИЕ С НЫНЕШНИМ ГОДОМ И ДАТОЙ ВЫВЕДЕННЫХ РУБРИК-->
     {% for firstmodelcontent in firstmodelsource %}
     <p>
         {{ firstmodelcontent.title }} - {{ firstmodelcontent.published|date:"F j, Y" }}
     </p>
-
     {% endfor %}
 </div>
 <hr/>
 <a href="{% url 'bboard:detail-redir' %}">DEADBOLT redirection BUTTON</a>
-
+<hr/>
+{% endblock %}
+{% block img_additional %}
+<img src="{% static 'bboard/img/cat_kambare.png' %}" alt="img">
 {% endblock %}
 
