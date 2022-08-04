@@ -1,7 +1,7 @@
 {% extends "layout/basic.html" %}
 
 {% block title %}Удаление объявления{% endblock %}
-{% block content %}
+{% block contentzero %}
     <div class="features">
         <h1>Удаление объявления</h1>
         <form action="{% url 'bboard:rub-delete' firstmodel.id %}" method='post'>
