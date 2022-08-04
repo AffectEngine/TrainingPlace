@@ -17,7 +17,7 @@ class FirstModel(models.Model):
     class Meta:
         verbose_name = 'Объявление'
         verbose_name_plural = 'Объявления'
-        ordering = ['-published']
+        ordering = ['-rubric']
         get_latest_by = 'published'
 
 #Плохая практика комментария блока кода. метод можно использовать для отображения названия-цены одновременно
