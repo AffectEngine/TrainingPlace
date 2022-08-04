@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import inde, PersonView, FirstModelByRubricViewL, FirstModelDetailView, FirstModelAddView, \
-    FirstModelEditView, FirstModelDeleteView, ArchiveIndexView, YearArchiveView, FirstModelDetailDateView, FirstModelRedirectView
+from .views import inde, PersonRegView, FirstModelByRubricViewL, FirstModelDetailView, FirstModelAddView, \
+    FirstModelEditView, FirstModelDeleteView, ArchiveIndexView, YearArchiveView, FirstModelDetailDateView, FirstModelRedirectView, RegisterPersonForm, PersonDisplayView
 
 app_name = 'bboard'
 
@@ -9,7 +9,8 @@ urlpatterns = [
     #    path('<int:rubric_id>/', FirstModelByRubricView.as_view(), name='by_rubric'), (Замены урла TemplateView на ListView),
     path('add/', FirstModelAddView.as_view(), name='add'),
     path('', inde, name='inde'),
-    path('users/<int:id>/<str:name>/', PersonView.as_view(), name='bboard'),
+    path('people/', PersonRegView.as_view(), name='people'),
+    path('personlist/', PersonDisplayView.as_view(), name='person_display'),
     path('<int:rubric_id>/', FirstModelByRubricViewL.as_view(), name='by_rubric'),
     path('detail/<int:pk>/', FirstModelDetailView.as_view(), name='detail'),
     path('bboard/xdd/', FirstModelRedirectView.as_view(), name='detail-redir'),
