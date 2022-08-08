@@ -16,3 +16,6 @@ nav a {
 section {
 	margin-left: 170px;
 }
+ul {
+    style: circle;
+}
