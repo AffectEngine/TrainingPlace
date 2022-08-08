@@ -4,11 +4,11 @@
 {% block contentzero %}
     <div class="features">
         <h1>Удаление объявления</h1>
-        <form action="{% url 'bboard:rub-delete' firstmodel.id %}" method='post'>
+        <form action="{% url 'bboard:delete' firstmodel.id %}" method='post'>
             {% csrf_token %}
             <p>Рубрика: {{ firstmodel.rubric.name }}</p>
             <p>Товар: {{ firstmodel.title }}</p>
-            <p>Цена: {{ fristmodel.price }}</p>
+            <p>Цена: {{ firstmodel.price|floatformat }}</p>
             <button type='submit' class='btn btn-light'>Удалить</button>
         </form>
     </div>
