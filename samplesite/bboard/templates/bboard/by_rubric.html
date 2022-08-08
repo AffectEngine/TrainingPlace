@@ -9,10 +9,10 @@
 <div class="{% cycle 'bb1' 'bb2' 'bb3' as currentclass %}">
     <h1><a href="{% url 'bboard:detail' pk=firstmodelcontent.pk %}">{{ firstmodelcontent.title }}</a></h1>
     <p class="currentclass">{{ firstmodelcontent.content }}</p>
-    <p>Стоимость: {{ firstmodelcontent.price|floatformat }}</p>
+    <p>Цена: {{ firstmodelcontent.price|floatformat }}</p>
     <p>С момента публикации {{ firstmodelcontent.published|timesince }}</p>
     <h6><a href="{% url 'bboard:edit' pk=firstmodelcontent.pk %}">Исправить</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a
-            href="{% url 'bboard:rub-delete' pk=firstmodelcontent.pk %}" class="btn btn-danger">Удалить</a></h6>
+            href="{% url 'bboard:delete' pk=firstmodelcontent.pk %}" class="btn btn-danger">Удалить</a></h6>
 </div>
 {% endfor %}
 {% with firstmodel_count=firstmodelsource.count %}
@@ -24,7 +24,7 @@
 {% endwith %}
 <h5>Дата добавления</h5>
 <ul type="circle">
-    {% for firstmodelcontent in firstmodelsource %}
+    {% for firstmodelcontent in firstmodelsource|dictsortreversed:'published' %}
     <li>{{ firstmodelcontent.published }}: {{ firstmodelcontent.title }}</li>
     {% endfor %}
 </ul>
