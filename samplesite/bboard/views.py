@@ -81,29 +81,61 @@ def inde(request):
 #         context['rubrics'] = Rubric.objects.all()
 #         return context
 
+# ПЛОХАЯ ПРАКТИКА МАССОВОГО КОММЕНТАРИЯ, замена UpdateView на К-Ф edit для правки записи по pk из URL
 
-class FirstModelEditView(UpdateView):
-    template_name = 'bboard/firstmodel_form.html'
-    model = FirstModel
-    form_class = FirstModelForm
-    success_url = '/'
+# class FirstModelEditView(UpdateView):
+#     template_name = 'bboard/firstmodel_edit_form.html'
+#     model = FirstModel
+#     form_class = FirstModelForm
+#     success_url = '/'
+#
+#     def get_context_data(self, *args, **kwargs):
+#         context = super(FirstModelEditView, self).get_context_data(*args, **kwargs)
+#         context['rubrics'] = Rubric.objects.all()
+#         return context
 
-    def get_context_data(self, *args, **kwargs):
-        context = super(FirstModelEditView, self).get_context_data(*args, **kwargs)
-        context['rubrics'] = Rubric.objects.all()
-        return context
+# ПЛОХАЯ ПРАКТИКА МАССОВОГО КОММЕНТАРИЯ, замена DeleteView на К-Ф delete для удаления записи по pk из URL
+
+# class FirstModelDeleteView(DeleteView):
+#     template_name = 'bboard/firstmodel_confirm_delete.html'
+#     model = FirstModel
+#     success_url = reverse_lazy('bboard:inde')
+#     queryset = FirstModel.objects.all()
+#
+#     def get_context_data(self, *args, **kwargs):
+#         context = super(FirstModelDeleteView, self).get_context_data(*args, **kwargs)
+#         context['rubrics'] = Rubric.objects.all()
+#         return context
+
+def edit(request, pk):
+    firstmodel = FirstModel.objects.get(pk=pk)
+    if request.method == 'POST':
+        firstmodeledit = FirstModelFullForm(request.POST, instance=firstmodel)
+        if firstmodeledit.is_valid():
+            if firstmodeledit.has_changed():
+                firstmodeledit.save()
+                return HttpResponseRedirect(
+                    reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodeledit.cleaned_data['rubric'].pk}))
+            else:
+                return HttpResponseRedirect(
+                    reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodeledit.cleaned_data['rubric'].pk}))
+        else:
+            context = {'form': firstmodeledit}
+            return render(request, 'bboard/firstmodel_edit_form.html', context)
+    else:
+        firstmodeledit = FirstModelFullForm(instance=firstmodel)
+        context = {'form': firstmodeledit}
+        return render(request, 'bboard/firstmodel_edit_form.html', context)
 
 
-class FirstModelDeleteView(DeleteView):
-    template_name = 'bboard/firstmodel_confirm_delete.html'
-    model = FirstModel
-    success_url = reverse_lazy('bboard:inde')
-    queryset = FirstModel.objects.all()
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(FirstModelDeleteView, self).get_context_data(*args, **kwargs)
-        context['rubrics'] = Rubric.objects.all()
-        return context
+def delete(request, pk):
+    firstmodel = FirstModel.objects.get(pk=pk)
+    if request.method == 'POST':
+        firstmodel.delete()
+        return HttpResponseRedirect(reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodel.rubric.pk}))
+    else:
+        context = {'firstmodel': firstmodel}
+        return render(request, 'bboard/firstmodel_confirm_delete.html', context)
 
 
 class FirstModelAddView(FormView):
@@ -179,7 +211,6 @@ class PersonDisplayView(ListView):
 class FirstModelByRubricViewL(ListView):
     template_name = 'bboard/by_rubric.html'
     context_object_name = 'firstmodelsource'
-
 
     def get_queryset(self):
         return FirstModel.objects.filter(rubric=self.kwargs['rubric_id'])
