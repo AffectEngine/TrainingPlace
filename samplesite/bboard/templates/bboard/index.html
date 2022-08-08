@@ -15,7 +15,7 @@
     <p>{{ firstmodelcontent.published|date:"d.m.Y H:i:s" }}</p>
     <p>С момента публикации {{ firstmodelcontent.published|timesince }}</p>
     <h6><a href="{% url 'bboard:edit' pk=firstmodelcontent.pk %}">Исправить</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a
-            href="{% url 'bboard:rub-delete' pk=firstmodelcontent.pk %}" class="btn btn-danger">Удалить</a></h6>
+            href="{% url 'bboard:delete' pk=firstmodelcontent.pk %}" class="btn btn-danger">Удалить</a></h6>
 </div>
 <hr/>
 {% endfor %}
@@ -45,7 +45,7 @@
     {% endif %}
     {% endwith %}
     <!-- НАСТРОИТЬ СОВПАДЕНИЕ С НЫНЕШНИМ ГОДОМ И ДАТОЙ ВЫВЕДЕННЫХ РУБРИК-->
-    {% for firstmodelcontent in firstmodelsource %}
+    {% for firstmodelcontent in firstmodelsource|dictsortreversed:'published' %}
     <p>
         {{ firstmodelcontent.title }} - {{ firstmodelcontent.published|date:"F j, Y" }}
     </p>
