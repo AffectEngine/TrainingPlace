@@ -1,0 +1,18 @@
+{% extends "layout/basic.html" %}
+
+{% block title %}Исправление объявления{% endblock %}
+
+{% block contentzero %}
+<h2>Исправление объявления</h2>
+{% if form.is_multipart %}
+    <form enctype="multipart/form-data" method="post">
+{% else %}
+    <form method="post">
+{% endif %}
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+        <input type="submit" value="Сохранить">
+    </form>
+{% endblock %}
