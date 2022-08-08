@@ -3,6 +3,7 @@ from django.shortcuts import reverse
 from django.core import validators
 from django.core.exceptions import ValidationError
 
+
 # from datetime import date
 
 
@@ -20,15 +21,16 @@ class FirstModel(models.Model):
         ordering = ['-rubric']
         get_latest_by = 'published'
 
-#Плохая практика комментария блока кода. метод можно использовать для отображения названия-цены одновременно
 
-    # def title_and_price(self):
-    #     if self.price:
-    #         return f"{self.title} {self.price}"
-    #     else:
-    #         return self.title
-    #
-    # title_and_price.short_description = 'Название и цена'
+# Плохая практика комментария блока кода. метод можно использовать для отображения названия-цены одновременно
+
+# def title_and_price(self):
+#     if self.price:
+#         return f"{self.title} {self.price}"
+#     else:
+#         return self.title
+#
+# title_and_price.short_description = 'Название и цена'
 
 
 class Rubric(models.Model):
@@ -48,29 +50,25 @@ def get_min_length():
     return min_length
 
 
-def get_min_age():
-    min_age = 18
-    return min_age
-
-
 class Person(models.Model):
     choices = (
-        ('M', 'Male'),
-        ('F', 'Female')
+        ('M', 'Женщина'),
+        ('F', 'Мужчина'),
+        ('N', 'Неопределенный')
     )
     name = models.CharField(max_length=15, verbose_name='Имя',
                             validators=[validators.MinLengthValidator(get_min_length)])
-    second_name = models.CharField(max_length=15, verbose_name='Второе имя', default='', validators=[validators.MinLengthValidator(get_min_length)])
-    skin_color = models.CharField(max_length=15, verbose_name='Цвет кожи', default='', validators=[validators.MinLengthValidator(get_min_length)])
+    second_name = models.CharField(max_length=15, verbose_name='Второе имя', default='',
+                                   validators=[validators.MinLengthValidator(get_min_length)])
+    skin_color = models.CharField(max_length=15, verbose_name='Цвет кожи', default='',
+                                  validators=[validators.MinLengthValidator(get_min_length)], blank=True, null=True)
     sex = models.CharField(max_length=1, verbose_name='Пол', choices=choices)
-    birth_date = models.DateField(verbose_name='Дата рождения', default='2022-07-02')
-    age = models.IntegerField(verbose_name='Возраст', validators=[
-        validators.MinValueValidator(get_min_age, message='Регистрация доступна пользователям с 18 лет')])
+    age = models.IntegerField(verbose_name='Возраст')
     mail = models.EmailField(max_length=30, verbose_name='Почта', default=' ',
                              validators=[validators.EmailValidator(message='Некорректный ввод')])
     git = models.URLField(max_length=90, verbose_name='Ссылка на Git', default=' ', validators=[
         validators.URLValidator(schemes=None, regex='github.com', message='Введите корректный Git адрес',
-                                code='invalid')])
+                                code='invalid')], blank=True, null=True)
 
     def get_absolute_url(self):
         return reverse('bboard:ppl', kwargs={'id': self.id, 'name': self.name})
