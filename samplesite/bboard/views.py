@@ -1,5 +1,5 @@
 from bboard.models import FirstModel, Rubric, Person
-from .forms import FirstModelForm, RegisterPersonForm, FirstModelFullForm
+from .forms import RegisterPersonForm, FirstModelFullForm
 
 from django.template.loader import get_template
 from django.shortcuts import render
@@ -32,6 +32,163 @@ def inde(request):
     context = {'rubrics': rubrics, 'page': page, 'firstmodelsource': page.object_list}
     return render(request, 'bboard/index.html', context)
 
+
+def edit(request, pk):
+    firstmodel = FirstModel.objects.get(pk=pk)
+    if request.method == 'POST':
+        firstmodeledit = FirstModelFullForm(request.POST, instance=firstmodel)
+        if firstmodeledit.is_valid():
+            if firstmodeledit.has_changed():
+                firstmodeledit.save()
+                return HttpResponseRedirect(
+                    reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodeledit.cleaned_data['rubric'].pk}))
+            else:
+                return HttpResponseRedirect(
+                    reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodeledit.cleaned_data['rubric'].pk}))
+        else:
+            context = {'form': firstmodeledit}
+            return render(request, 'bboard/firstmodel_edit_form.html', context)
+    else:
+        firstmodeledit = FirstModelFullForm(instance=firstmodel)
+        context = {'form': firstmodeledit}
+        return render(request, 'bboard/firstmodel_edit_form.html', context)
+
+
+def delete(request, pk):
+    firstmodel = FirstModel.objects.get(pk=pk)
+    if request.method == 'POST':
+        firstmodel.delete()
+        return HttpResponseRedirect(reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodel.rubric.pk}))
+    else:
+        context = {'firstmodel': firstmodel}
+        return render(request, 'bboard/firstmodel_confirm_delete.html', context)
+
+
+class FirstModelRedirectView(RedirectView):
+    url = 'https://www.youtube.com/watch?v=nuKIatYN50U&ab_channel=JAG'
+
+
+class FirstModelIndexView(ArchiveIndexView):
+    model = FirstModel
+    date_field = 'published'
+    date_list_period = 'year'
+    template_name = 'bboard/index.html'
+    context_object_name = 'firstmodelsource'
+    allow_empty = True
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        return context
+
+
+class FirstModelArchiveView(YearArchiveView):
+    queryset = Rubric.objects.all()
+    date_field = 'published'
+    template_name = 'bboard/index.html'
+    context_object_name = 'firstmodelsource'
+    year = '2022'
+    year_format = '%y'
+    allow_empty = True
+    allow_future = True
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        return context
+
+
+class FirstModelDetailDateView(DateDetailView):
+    model = FirstModel
+    date_field = 'published'
+    month_format = '%m'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(FirstModelDetailDateView, self).get_context_data(**kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        return context
+
+
+class FirstModelAddView(FormView):
+    template_name = 'bboard/create.html'
+    form = FirstModelFullForm
+    form_class = FirstModelFullForm
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(FirstModelAddView, self).get_context_data(**kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        return context
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        self.object = super(FirstModelAddView, self).get_form(form_class)
+        return self.object
+
+    def get_success_url(self):
+        return reverse('bboard:by_rubric', kwargs={'rubric_id': self.object.cleaned_data['rubric'].pk})
+
+
+class FirstModelByRubricViewL(ListView):
+    template_name = 'bboard/by_rubric.html'
+    context_object_name = 'firstmodelsource'
+
+    def get_queryset(self):
+        return FirstModel.objects.filter(rubric=self.kwargs['rubric_id'])
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super(FirstModelByRubricViewL, self).get_context_data(**kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        context['current_rubric'] = Rubric.objects.get(pk=self.kwargs['rubric_id'])
+
+        return context
+
+
+class FirstModelDetailView(DetailView):
+    model = FirstModel
+    form_class = FirstModelFullForm
+
+    def get_context_data(self, **kwargs):
+        context = super(FirstModelDetailView, self).get_context_data(**kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        return context
+
+
+class PersonRegView(FormView):
+    template_name = 'bboard/people.html'
+    form_class = RegisterPersonForm
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(PersonRegView, self).get_context_data(**kwargs)
+        context['name'] = Person.objects.all()
+        return context
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        self.object = super(PersonRegView, self).get_form(form_class)
+        return self.object
+
+    def get_success_url(self):
+        return reverse('bboard:person_display')
+
+
+class PersonDisplayView(ListView):
+    template_name = 'bboard/person_display.html'
+    context_object_name = 'personmodelsource'
+    paginate_by = 3
+
+    def get_queryset(self):
+        return Person.objects.all()
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super(PersonDisplayView, self).get_context_data(**kwargs)
+
+        return context
 
 # def inde(request):
 #     firstmodelsource = FirstModel.objects.all()
@@ -107,93 +264,6 @@ def inde(request):
 #         context['rubrics'] = Rubric.objects.all()
 #         return context
 
-def edit(request, pk):
-    firstmodel = FirstModel.objects.get(pk=pk)
-    if request.method == 'POST':
-        firstmodeledit = FirstModelFullForm(request.POST, instance=firstmodel)
-        if firstmodeledit.is_valid():
-            if firstmodeledit.has_changed():
-                firstmodeledit.save()
-                return HttpResponseRedirect(
-                    reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodeledit.cleaned_data['rubric'].pk}))
-            else:
-                return HttpResponseRedirect(
-                    reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodeledit.cleaned_data['rubric'].pk}))
-        else:
-            context = {'form': firstmodeledit}
-            return render(request, 'bboard/firstmodel_edit_form.html', context)
-    else:
-        firstmodeledit = FirstModelFullForm(instance=firstmodel)
-        context = {'form': firstmodeledit}
-        return render(request, 'bboard/firstmodel_edit_form.html', context)
-
-
-def delete(request, pk):
-    firstmodel = FirstModel.objects.get(pk=pk)
-    if request.method == 'POST':
-        firstmodel.delete()
-        return HttpResponseRedirect(reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodel.rubric.pk}))
-    else:
-        context = {'firstmodel': firstmodel}
-        return render(request, 'bboard/firstmodel_confirm_delete.html', context)
-
-
-class FirstModelAddView(FormView):
-    template_name = 'bboard/create.html'
-    form_class = FirstModelFullForm
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(FirstModelAddView, self).get_context_data(*args, **kwargs)
-        context['rubrics'] = Rubric.objects.all()
-        return context
-
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
-    def get_form(self, form_class=None):
-        self.object = super(FirstModelAddView, self).get_form(form_class)
-        return self.object
-
-    def get_success_url(self):
-        return reverse('bboard:by_rubric', kwargs={'rubric_id': self.object.cleaned_data['rubric'].pk})
-
-
-class PersonRegView(FormView):
-    template_name = 'bboard/people.html'
-    form_class = RegisterPersonForm
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(PersonRegView, self).get_context_data(*args, **kwargs)
-        context['name'] = Person.objects.all()
-        return context
-
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
-    def get_form(self, form_class=None):
-        self.object = super(PersonRegView, self).get_form(form_class)
-        return self.object
-
-    def get_success_url(self):
-        return reverse('bboard:person_display')
-
-
-class PersonDisplayView(ListView):
-    template_name = 'bboard/person_display.html'
-    context_object_name = 'personmodelsource'
-    paginate_by = 3
-
-    def get_queryset(self):
-        return Person.objects.all()
-
-    def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super(PersonDisplayView, self).get_context_data(**kwargs)
-
-        return context
-
-
 # BAD PRACTICE массовый комментарий с попыткой замены TemplateView на ListView для пробы пера
 
 # class FirstModelByRubricView(TemplateView):
@@ -206,72 +276,3 @@ class PersonDisplayView(ListView):
 #         context['rubrics'] = Rubric.objects.all()
 #         context['current_rubric'] = Rubric.objects.get(pk=context['rubric_id'])
 #         return context
-
-
-class FirstModelByRubricViewL(ListView):
-    template_name = 'bboard/by_rubric.html'
-    context_object_name = 'firstmodelsource'
-
-    def get_queryset(self):
-        return FirstModel.objects.filter(rubric=self.kwargs['rubric_id'])
-
-    def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super(FirstModelByRubricViewL, self).get_context_data(**kwargs)
-        context['rubrics'] = Rubric.objects.all()
-        context['current_rubric'] = Rubric.objects.get(pk=self.kwargs['rubric_id'])
-
-        return context
-
-
-class FirstModelDetailView(DetailView):
-    model = FirstModel
-
-    def get_context_data(self, **kwargs):
-        context = super(FirstModelDetailView, self).get_context_data(**kwargs)
-        context['rubrics'] = Rubric.objects.all()
-        return context
-
-
-class FirstModelRedirectView(RedirectView):
-    url = 'https://www.youtube.com/watch?v=nuKIatYN50U&ab_channel=JAG'
-
-
-class FirstModelIndexView(ArchiveIndexView):
-    model = FirstModel
-    date_field = 'published'
-    date_list_period = 'year'
-    template_name = 'bboard/index.html'
-    context_object_name = 'firstmodelsource'
-    allow_empty = True
-
-    def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['rubrics'] = Rubric.objects.all()
-        return context
-
-
-class FirstModelArchiveView(YearArchiveView):
-    queryset = Rubric.objects.all()
-    date_field = 'published'
-    template_name = 'bboard/index.html'
-    context_object_name = 'firstmodelsource'
-    year = '2022'
-    year_format = '%y'
-    allow_empty = True
-    allow_future = True
-
-    def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['rubrics'] = Rubric.objects.all()
-        return context
-
-
-class FirstModelDetailDateView(DateDetailView):
-    model = FirstModel
-    date_field = 'published'
-    month_format = '%m'
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(FirstModelDetailDateView, self).get_context_data(*args, **kwargs)
-        context['rubrics'] = Rubric.objects.all()
-        return context

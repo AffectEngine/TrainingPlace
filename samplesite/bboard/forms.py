@@ -1,13 +1,10 @@
-from django.forms import ModelForm, modelform_factory, DecimalField
+from django.forms import ModelForm, modelform_factory, DecimalField, modelformset_factory
 from django.forms.widgets import Select
 from django import forms
 from django.core import validators
+from django.core.exceptions import ValidationError
 
 from .models import FirstModel, Person, Rubric
-
-# from urllib import request
-# from django.core.files.base import ContentFile
-# from django.utils.text import slugify
 
 BIRTH_YEARS_FOR_CHOICE = ['1950', '1951', '1952', '1953', '1954', '1955', '1956', '1957', '1958', '1959', '1960',
                           '1961', '1962', '1963', '1964', '1965', '1966', '1967', '1968', '1969', '1970', '1971',
@@ -17,11 +14,11 @@ BIRTH_YEARS_FOR_CHOICE = ['1950', '1951', '1952', '1953', '1954', '1955', '1956'
                           '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015',
                           '2016', '2017', '2018', '2019', '2020', '2021']
 
-
-class FirstModelForm(ModelForm):
-    class Meta:
-        model = FirstModel
-        fields = ('title', 'content', 'price', 'rubric')
+RARITY = [
+    ('a', 'Обычное'),
+    ('b', 'Необычное'),
+    ('c', 'Редкое'),
+]
 
 
 class PersonForm(ModelForm):
@@ -35,11 +32,28 @@ class FirstModelFullForm(forms.ModelForm):
     rubric = forms.ModelChoiceField(queryset=Rubric.objects.all(), label='Рубрика',
                                     help_text='Не забудьте задать рубрику!',
                                     widget=forms.widgets.RadioSelect())
+    item_rarity = forms.ChoiceField(
+        required=False,
+        widget=forms.Select,
+        choices=RARITY,
+    )
 
     class Meta:
         model = FirstModel
         fields = ('title', 'content', 'price', 'rubric')
         labels = {'title': 'Название товара'}
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if not self.cleaned_data['content']:
+            errors['content'] = ValidationError('Укажите описание продаваемого товара')
+        if self.cleaned_data['price'] < 0:
+            errors['price'] = ValidationError('Укажите неотрицательное значение цены')
+        if self.cleaned_data['title'] == 'Снег':
+            errors['title'] = ValidationError('Не допускается к продаже')
+        if errors:
+            raise ValidationError(errors)
 
 
 class RegisterPersonForm(forms.ModelForm):

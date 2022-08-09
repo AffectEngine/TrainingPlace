@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import inde, edit, delete, PersonRegView, FirstModelByRubricViewL, FirstModelDetailView, FirstModelAddView, \
     ArchiveIndexView, YearArchiveView, FirstModelDetailDateView, FirstModelRedirectView, \
-    RegisterPersonForm, PersonDisplayView
+    RegisterPersonForm, PersonDisplayView, RubricFormsView
 
 app_name = 'bboard'
 
@@ -23,4 +23,5 @@ urlpatterns = [
     path('<int:year>/', YearArchiveView.as_view(), name='rub-year-archive'),
     path('detaildate/<int:year>/<int:month>/<int:day>/<int:pk>/', FirstModelDetailDateView.as_view(),
          name='detail-date'),
+
 ]

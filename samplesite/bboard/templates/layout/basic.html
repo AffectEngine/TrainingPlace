@@ -17,6 +17,7 @@
     {% for rubric in rubrics %}
     <a href="{% url 'bboard:by_rubric' rubric.pk %}">{{ rubric.name }}</a>
     {% endfor %}
+    <a href="{% url 'bboard:displayrubric' %}">Список рубрик</a>
     <a href="{% url 'bboard:person_display' %}">Список пользователей</a>
 </nav>
 <section>

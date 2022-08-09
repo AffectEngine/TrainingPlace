@@ -4,9 +4,6 @@ from django.core import validators
 from django.core.exceptions import ValidationError
 
 
-# from datetime import date
-
-
 class FirstModel(models.Model):
     title = models.CharField(max_length=50, verbose_name='Товар')
     content = models.TextField(null=True, blank=True, verbose_name='Описание')
@@ -86,10 +83,6 @@ class Person(models.Model):
 
         if errors:
             raise ValidationError(errors)
-
-    # def calculate_age(born):
-    #     today = date.today()
-    #     return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
     class Meta:
         verbose_name = 'Человек'
