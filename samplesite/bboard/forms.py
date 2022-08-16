@@ -1,5 +1,6 @@
 from django.forms import ModelForm, modelform_factory, DecimalField, modelformset_factory
 from django.forms.widgets import Select
+from django.forms import modelformset_factory
 from django import forms
 from django.core import validators
 from django.core.exceptions import ValidationError
@@ -43,6 +44,7 @@ class FirstModelFullForm(forms.ModelForm):
         fields = ('title', 'content', 'price', 'rubric')
         labels = {'title': 'Название товара'}
 
+
     def clean(self):
         super().clean()
         errors = {}
@@ -54,6 +56,8 @@ class FirstModelFullForm(forms.ModelForm):
             errors['title'] = ValidationError('Не допускается к продаже')
         if errors:
             raise ValidationError(errors)
+
+
 
 
 class RegisterPersonForm(forms.ModelForm):
