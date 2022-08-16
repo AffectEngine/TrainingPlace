@@ -31,7 +31,10 @@ class FirstModel(models.Model):
 
 
 class Rubric(models.Model):
-    name = models.CharField(max_length=20, db_index=True, verbose_name='Название')
+    name = models.CharField(
+        max_length=30, db_index=True, verbose_name='Название',
+        validators=[validators.MinLengthValidator(2, message='Название слишком короткое!')]
+    )
 
     def __str__(self):
         return self.name
