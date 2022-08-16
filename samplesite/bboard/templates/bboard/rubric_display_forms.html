@@ -1,0 +1,13 @@
+{% extends "layout/basic.html" %}
+
+{% block title %}Рубрики{% endblock %}
+
+{% block contentzero %}
+<form method="POST">
+    {% csrf_token %}
+    <p>
+        {{ formset.as_p }}
+    </p>
+    <p><input type="submit" value="Сохранить"></p>
+</form>
+{% endblock %}
