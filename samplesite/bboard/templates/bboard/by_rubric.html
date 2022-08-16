@@ -11,8 +11,11 @@
     <p class="currentclass">{{ firstmodelcontent.content }}</p>
     <p>Цена: {{ firstmodelcontent.price|floatformat }}</p>
     <p>С момента публикации {{ firstmodelcontent.published|timesince }}</p>
-    <h6><a href="{% url 'bboard:edit' pk=firstmodelcontent.pk %}">Исправить</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a
-            href="{% url 'bboard:delete' pk=firstmodelcontent.pk %}" class="btn btn-danger">Удалить</a></h6>
+    <h6>
+        <a href="{% url 'bboard:edit' pk=firstmodelcontent.pk %}" class="btn btn-danger">Исправить</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="{% url 'bboard:delete' pk=firstmodelcontent.pk %}" class="btn btn-danger">Удалить</a>
+    </h6>
 </div>
 {% endfor %}
 {% with firstmodel_count=firstmodelsource.count %}
