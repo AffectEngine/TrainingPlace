@@ -1,18 +1,20 @@
 from bboard.models import FirstModel, Rubric, Person
 from .forms import RegisterPersonForm, FirstModelFullForm
 
-from django.template.loader import get_template
-from django.shortcuts import render
+from django.forms import modelformset_factory, BaseModelFormSet
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest, FileResponse
 from django.core.paginator import Paginator
+from django.core.exceptions import ValidationError
+from django.template.loader import get_template
+from django.forms.formsets import ORDERING_FIELD_NAME
 
 # from django.views.generic.base import TemplateView   Попытка замены TemplateView на ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.views.generic.dates import YearArchiveView, ArchiveIndexView, DateDetailView
 
 
 def home(request):
@@ -41,10 +43,12 @@ def edit(request, pk):
             if firstmodeledit.has_changed():
                 firstmodeledit.save()
                 return HttpResponseRedirect(
-                    reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodeledit.cleaned_data['rubric'].pk}))
+                    reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodeledit.cleaned_data['rubric'].pk})
+                )
             else:
                 return HttpResponseRedirect(
-                    reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodeledit.cleaned_data['rubric'].pk}))
+                    reverse('bboard:by_rubric', kwargs={'rubric_id': firstmodeledit.cleaned_data['rubric'].pk})
+                )
         else:
             context = {'form': firstmodeledit}
             return render(request, 'bboard/firstmodel_edit_form.html', context)
@@ -64,49 +68,12 @@ def delete(request, pk):
         return render(request, 'bboard/firstmodel_confirm_delete.html', context)
 
 
+def contact(request):
+    return HttpResponse('Контактный вид')
+
+
 class FirstModelRedirectView(RedirectView):
     url = 'https://www.youtube.com/watch?v=nuKIatYN50U&ab_channel=JAG'
-
-
-class FirstModelIndexView(ArchiveIndexView):
-    model = FirstModel
-    date_field = 'published'
-    date_list_period = 'year'
-    template_name = 'bboard/index.html'
-    context_object_name = 'firstmodelsource'
-    allow_empty = True
-
-    def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['rubrics'] = Rubric.objects.all()
-        return context
-
-
-class FirstModelArchiveView(YearArchiveView):
-    queryset = Rubric.objects.all()
-    date_field = 'published'
-    template_name = 'bboard/index.html'
-    context_object_name = 'firstmodelsource'
-    year = '2022'
-    year_format = '%y'
-    allow_empty = True
-    allow_future = True
-
-    def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['rubrics'] = Rubric.objects.all()
-        return context
-
-
-class FirstModelDetailDateView(DateDetailView):
-    model = FirstModel
-    date_field = 'published'
-    month_format = '%m'
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(FirstModelDetailDateView, self).get_context_data(**kwargs)
-        context['rubrics'] = Rubric.objects.all()
-        return context
 
 
 class FirstModelAddView(FormView):
@@ -189,6 +156,37 @@ class PersonDisplayView(ListView):
         context = super(PersonDisplayView, self).get_context_data(**kwargs)
 
         return context
+
+
+class RubricFormSetValidation(BaseModelFormSet):
+    def clean(self):
+        super(RubricFormSetValidation, self).clean()
+        names = [form.cleaned_data['name'] for form in self.forms if 'name' in form.cleaned_data]
+        if ('Недвижимость' not in names) or ('Транспорт' not in names) or ('Мебель' not in names) or (
+                'Завод' not in names) or ('Кладбище' not in names):
+            raise ValidationError('Добавьте рубрики недвижимости, транспорта, мебели, завода и кладбища')
+
+
+def rubrics(request):
+    RubricFormSet = modelformset_factory(
+        Rubric, fields=('name',), can_order=True, can_delete=True, extra=2, formset=RubricFormSetValidation
+    )
+
+    if request.method == 'POST':
+        formset = RubricFormSet(request.POST)
+        if formset.is_valid():
+            for form in formset:
+                if form.cleaned_data:
+                    rubric = form.save()
+                    rubric.order = form.cleaned_data[ORDERING_FIELD_NAME]
+                    rubric.save()
+            return redirect('bboard:rubrics')
+    else:
+        formset = RubricFormSet(
+            initial=[{'name': 'Новая рубрика'}, {'name': 'Ещё одна новая рубрика'}], queryset=Rubric.objects.all()[0:5]
+        )
+    context = {'formset': formset}
+    return render(request, 'bboard/rubric.html', context)
 
 # def inde(request):
 #     firstmodelsource = FirstModel.objects.all()
