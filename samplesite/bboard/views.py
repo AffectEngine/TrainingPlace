@@ -1,7 +1,7 @@
 from bboard.models import FirstModel, Rubric, Person
 from .forms import RegisterPersonForm, FirstModelFullForm
 
-from django.forms import modelformset_factory, BaseModelFormSet
+from django.forms import modelformset_factory, inlineformset_factory, BaseModelFormSet
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest, FileResponse
@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django.forms.formsets import ORDERING_FIELD_NAME
+from django.conf import settings
 
 # from django.views.generic.base import TemplateView   Попытка замены TemplateView на ListView
 from django.views.generic.base import RedirectView
@@ -187,6 +188,20 @@ def rubrics(request):
         )
     context = {'formset': formset}
     return render(request, 'bboard/rubric.html', context)
+
+
+def first_model_inline_formset(request, rubric_id):
+    FirstModelInlineFormSet = inlineformset_factory(Rubric, FirstModel, form=FirstModelFullForm, extra=1)
+    rubric = Rubric.objects.get(pk=rubric_id)
+    if request.method == 'POST':
+        formset = FirstModelInlineFormSet(request.POST, instance=rubric)
+        if formset.is_valid():
+            formset.save()
+            return redirect('bboard:rubrics')
+    else:
+        formset = FirstModelInlineFormSet(instance=rubric)
+    context = {'formset': formset, 'current_rubric': rubric}
+    return render(request, 'bboard/rubricsID.html', context)
 
 # def inde(request):
 #     firstmodelsource = FirstModel.objects.all()
