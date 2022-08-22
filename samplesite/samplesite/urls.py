@@ -16,10 +16,27 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from bboard.views import home
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView, \
+    PasswordResetView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
     path('', home),
+    path('accounts/login/', LoginView.as_view(next_page='bboard:inde'), name='login'),
+    path('accounts/logout/', LogoutView.as_view(next_page='bboard:inde'), name='logout'),
+    path('accounts/password_change/', PasswordChangeView.as_view(
+        template_name='registration/change_password.html'
+    ), name='password_change'),
+    path('accounts/password_change/done/', PasswordChangeDoneView.as_view(
+        template_name='registration/password_changed.html'
+    ), name='password_change_done'),
+    path('accounts/password_reset/', PasswordResetView.as_view(
+        template_name='registration/reset_password.html',
+        subject_template_name='registration/reset_subject.txt',
+        email_template_name='registration/reset_email.txt'
+    ), name='password_reset'),
+
     path('bboard/', include('bboard.urls')),
     path('ticket/', include('ticket.urls')),
 ]
