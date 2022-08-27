@@ -10,22 +10,32 @@
 </head>
 <body style="padding: 30px;">
 <header>
-    <h1>Объявления</h1>
-</header>
+    <h1>Объявления</h1></header>
+    {% block freeheadone %} {% endblock %}
 <nav>
     <a href="{% url 'bboard:inde' %}">Главная</a>
     <a href="{% url 'bboard:people' %}">Регистрация</a>
+    <hr>
+    {% if perms.bboard.add_firstmodel %}
     <a href="{% url 'bboard:add' %}">Добавить Объявление</a>
+    {% endif %}
     {% for rubric in rubrics %}
     <a href="{% url 'bboard:by_rubric' rubric.pk %}">{{ rubric.name }}</a>
     {% endfor %}
     <hr>
+    {% if user.is_staff %}
     <a href="{% url 'bboard:rubricsID' rubric_id=1 %}">Править Недвижимость</a>
     <a href="{% url 'bboard:rubricsID' rubric_id=2 %}">Править Скидки</a>
     <a href="{% url 'bboard:rubricsID' rubric_id=3 %}">Править Кладбище</a>
     <hr>
-    <a href="{% url 'bboard:person_display' %}">Список пользователей</a>
     <a href="{% url 'bboard:rubrics' %}">Список рубрик</a>
+    {% endif %}
+    {% if user.is_superuser %}
+    <a href="{% url 'bboard:person_display' %}">Список пользователей</a>
+    <hr>
+    {% endif %}
+    <a href="{% url 'login' %}">Войти</a>
+    <a href="{% url 'logout' %}">Выйти</a>
 </nav>
 <section>
     {% block paginator_upper %}
