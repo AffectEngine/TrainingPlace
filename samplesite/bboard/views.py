@@ -10,6 +10,8 @@ from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django.forms.formsets import ORDERING_FIELD_NAME
 from django.conf import settings
+from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 # from django.views.generic.base import TemplateView   Попытка замены TemplateView на ListView
 from django.views.generic.base import RedirectView
@@ -23,6 +25,7 @@ def home(request):
     return FileResponse(home_image)
 
 
+@login_required
 def inde(request):
     firstmodelsource = FirstModel.objects.all()
     rubrics = Rubric.objects.all()
@@ -36,6 +39,7 @@ def inde(request):
     return render(request, 'bboard/index.html', context)
 
 
+@login_required
 def edit(request, pk):
     firstmodel = FirstModel.objects.get(pk=pk)
     if request.method == 'POST':
@@ -59,6 +63,8 @@ def edit(request, pk):
         return render(request, 'bboard/firstmodel_edit_form.html', context)
 
 
+@login_required
+@permission_required(('bboard.delete_rubric'), raise_exception=True)
 def delete(request, pk):
     firstmodel = FirstModel.objects.get(pk=pk)
     if request.method == 'POST':
@@ -77,7 +83,7 @@ class FirstModelRedirectView(RedirectView):
     url = 'https://www.youtube.com/watch?v=nuKIatYN50U&ab_channel=JAG'
 
 
-class FirstModelAddView(FormView):
+class FirstModelAddView(LoginRequiredMixin, FormView):
     template_name = 'bboard/create.html'
     form = FirstModelFullForm
     form_class = FirstModelFullForm
@@ -99,7 +105,7 @@ class FirstModelAddView(FormView):
         return reverse('bboard:by_rubric', kwargs={'rubric_id': self.object.cleaned_data['rubric'].pk})
 
 
-class FirstModelByRubricViewL(ListView):
+class FirstModelByRubricViewL(LoginRequiredMixin, ListView):
     template_name = 'bboard/by_rubric.html'
     context_object_name = 'firstmodelsource'
 
@@ -114,7 +120,7 @@ class FirstModelByRubricViewL(ListView):
         return context
 
 
-class FirstModelDetailView(DetailView):
+class FirstModelDetailView(LoginRequiredMixin, DetailView):
     model = FirstModel
     form_class = FirstModelFullForm
 
@@ -145,18 +151,21 @@ class PersonRegView(FormView):
         return reverse('bboard:person_display')
 
 
-class PersonDisplayView(ListView):
+class PersonDisplayView(UserPassesTestMixin, ListView):
     template_name = 'bboard/person_display.html'
     context_object_name = 'personmodelsource'
     paginate_by = 3
+    permission_denied_message = 'У вас недостаточно прав для доступа к этой странице.'
 
     def get_queryset(self):
         return Person.objects.all()
 
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super(PersonDisplayView, self).get_context_data(**kwargs)
-
         return context
+
+    def test_func(self):
+        return self.request.user.is_staff
 
 
 class RubricFormSetValidation(BaseModelFormSet):
@@ -168,6 +177,7 @@ class RubricFormSetValidation(BaseModelFormSet):
             raise ValidationError('Добавьте рубрики недвижимости, транспорта, мебели, завода и кладбища')
 
 
+@login_required
 def rubrics(request):
     RubricFormSet = modelformset_factory(
         Rubric, fields=('name',), can_order=True, can_delete=True, extra=2, formset=RubricFormSetValidation
@@ -190,6 +200,7 @@ def rubrics(request):
     return render(request, 'bboard/rubric.html', context)
 
 
+@login_required
 def first_model_inline_formset(request, rubric_id):
     FirstModelInlineFormSet = inlineformset_factory(Rubric, FirstModel, form=FirstModelFullForm, extra=1)
     rubric = Rubric.objects.get(pk=rubric_id)
