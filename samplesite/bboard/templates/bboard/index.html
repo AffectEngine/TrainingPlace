@@ -2,9 +2,16 @@
 
 {% load static %}
 
+{% block freeheadone %}
+{% if user.is_authenticated %}
+    <h4>Добро пожаловать, {{ user.username }}!</h4>
+    <br>
+{% endif %}
+{% endblock %}
 
 {% block contentzero %}
 {%  for firstmodelcontent in firstmodelsource %}
+
 <div>
     <p>№ {{ forloop.counter }}</p>
     <h1><a href="{% url 'bboard:detail' pk=firstmodelcontent.pk %}">{{ firstmodelcontent.title }}</a></h1>
