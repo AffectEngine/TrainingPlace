@@ -6,6 +6,9 @@
 <h2>Вход</h2>
 {% if user.is_authenticated %}
 <p>Вы уже выполнили вход!</p>
+<br>
+<p>последний вход: {{ user.last_login }} </p>
+<p>на сайте с: {{ user.date_joined }}</p>
 {% else %}
 <form method="post">
     {% csrf_token %}
