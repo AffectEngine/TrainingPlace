@@ -3,6 +3,10 @@ from django.shortcuts import reverse
 from django.core import validators
 from django.core.exceptions import ValidationError
 
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
+
 
 class FirstModel(models.Model):
     title = models.CharField(max_length=50, verbose_name='Товар')
@@ -35,6 +39,8 @@ class Rubric(models.Model):
         max_length=30, db_index=True, verbose_name='Название',
         validators=[validators.MinLengthValidator(2, message='Название слишком короткое!')]
     )
+    owner = models.ForeignKey('Person', null=True, on_delete=models.PROTECT, verbose_name='Собственник',
+                              related_query_name='Pfilter')
 
     def __str__(self):
         return self.name
@@ -70,6 +76,9 @@ class Person(models.Model):
         validators.URLValidator(schemes=None, regex='github.com', message='Введите корректный Git адрес',
                                 code='invalid')], blank=True, null=True)
 
+    def __str__(self):
+        return self.name
+
     def get_absolute_url(self):
         return reverse('bboard:ppl', kwargs={'id': self.id, 'name': self.name})
 
@@ -91,3 +100,64 @@ class Person(models.Model):
         verbose_name = 'Человек'
         verbose_name_plural = 'Люди'
         ordering = ['name']
+
+
+class Spare(models.Model):
+    name = models.CharField(max_length=30)
+    notes = GenericRelation('Note')
+
+    def __str__(self):
+        return self.name
+
+
+class Machine(models.Model):
+    name = models.CharField(max_length=30)
+    spares = models.ManyToManyField(Spare, through='Kit')
+    notes = GenericRelation('Note')
+
+    def __str__(self):
+        return self.name
+
+
+class Kit(models.Model):
+    machine = models.ForeignKey(Machine, on_delete=models.CASCADE)
+    spare = models.ForeignKey(Spare, on_delete=models.CASCADE)
+    count = models.IntegerField()
+
+
+class Note(models.Model):
+    content = models.TextField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey(ct_field='content_type', fk_field='object_id')
+
+
+# ПРЯМОЕ ( МНОГОТАБЛИЧНОЕ ) НАСЛЕДОВАНИЕ
+class Message(models.Model):
+    content = models.TextField()
+
+
+class PrivateMessage(Message):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.OneToOneField(Message, on_delete=models.CASCADE, parent_link=True)
+
+
+# АБСТРАКТНОЕ НАСЛЕДОВАНИЕ
+class Specification(models.Model):
+    title = models.TextField(max_length=40)
+    pages = models.PositiveIntegerField()
+    author = models.TextField(max_length=40)
+
+    class Meta:
+        abstract = True
+        ordering = ['title']
+
+
+class VIPSpecification(Specification):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.TextField(max_length=40)
+    pages = None
+
+    class Meta(Specification.Meta):
+        pass
+
