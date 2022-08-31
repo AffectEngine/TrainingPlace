@@ -7,6 +7,10 @@ class FirstModelAdmin(admin.ModelAdmin):
     list_display_links = ('title', 'content')
     search_fields = ('title', 'content')
 
+class RubricAdmin(admin.ModelAdmin):
+    list_display = ('name', 'owner')
+    list_display_links = ('name', 'owner')
+    search_fields = ('name', 'owner')
 
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('name', 'sex', 'age')
@@ -15,5 +19,5 @@ class PersonAdmin(admin.ModelAdmin):
 
 
 admin.site.register(FirstModel, FirstModelAdmin)
-admin.site.register(Rubric)
 admin.site.register(Person, PersonAdmin)
+admin.site.register(Rubric, RubricAdmin)
